@@ -55,24 +55,18 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  Color _color =const Color.fromARGB(255, 204, 23, 23);
+  Color _color =Colors.cyanAccent;
+  Color _newColor = Colors.red;
+  
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
+  void _incrementCounter() => setState(() {
       _counter++;
     });
-  }
+
   void _decrementCounter()
-  {
-    setState(() {
+  => setState(() {
       _counter--;
     });
-  }
 
   void _restartCounter()
   {
@@ -81,10 +75,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _colorChanged()
+  void _setColor()
   {
     
-    
+    setState(() {
+      if(_color != Colors.green)
+      {
+        _color = Colors.green;
+      }
+      else
+      {
+         _color = Colors.red;
+      }
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -94,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
+    var scaffold = Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
@@ -132,11 +135,18 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       
+      floatingActionButton: FloatingActionButton(
+       onPressed: null,
+       backgroundColor: _color,
+       tooltip: 'Increment',
+       child: const Icon(Icons.home)
+       ),
       persistentFooterButtons: [
         FloatingActionButton(
         onPressed: _incrementCounter,
+        backgroundColor: _newColor,
         tooltip: 'Incrementar',
-        child: const Icon(Icons.home),
+        child: const Icon(Icons.add),
       ),
       FloatingActionButton(
         onPressed: _decrementCounter,
@@ -147,9 +157,16 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _restartCounter,
         tooltip : 'Restaurar',
         child: const Icon(Icons.refresh),
-        )
+        ),
+        FloatingActionButton(
+          onPressed: _setColor,
+          backgroundColor: _color,
+          tooltip: 'Custom Action',
+          child: const Icon(Icons.star)
+          )
       ],
         // This trailing comma makes auto-formatting nicer for build methods.
     );
+    return scaffold;
   }
 }
