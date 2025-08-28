@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,9 +30,12 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 35, 190, 53)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 35, 190, 53),
+        ),
       ),
       home: const MyHomePage(title: '2023479502'),
+      
     );
   }
 }
@@ -55,48 +60,67 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  Color _color =Colors.cyanAccent;
-  Color _newColor = Colors.red;
-  
+  Color _color = Colors.cyanAccent;
+  final Color _newColor = Colors.red;
 
   void _incrementCounter() => setState(() {
-      _counter++;
-    });
+    _counter++;
+  });
 
-  void _decrementCounter()
-  => setState(() {
-      _counter--;
-    });
+  void _decrementCounter() => setState(() {
+    _counter--;
+  });
 
-  void _restartCounter()
-  {
+  void _restartCounter() {
     setState(() {
       _counter = 0;
     });
   }
 
-  void _setColor()
-  {
-    
+  void _setColor() {
     setState(() {
-      if(_color != Colors.green)
-      {
+      if (_color != Colors.green) {
         _color = Colors.green;
-      }
-      else
-      {
-         _color = Colors.red;
+      } else {
+        _color = Colors.red;
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
+    var logger = Logger();
+    logger.d("Logger is working!");
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    var persistentFooterButtons = [
+      FloatingActionButton(
+        onPressed: _incrementCounter,
+        backgroundColor: _newColor,
+        tooltip: 'Incrementar',
+        child: const Icon(Icons.add),
+      ),
+      FloatingActionButton(
+        onPressed: _decrementCounter,
+        tooltip: 'Decrementar',
+        child: const Icon(Icons.remove),
+      ),
+      FloatingActionButton(
+        onPressed: _restartCounter,
+        tooltip: 'Restaurar',
+        child: const Icon(Icons.refresh),
+      ),
+      FloatingActionButton(
+        onPressed: _setColor,
+        backgroundColor: _color,
+        tooltip: 'Custom Action',
+        child: const Icon(Icons.star),
+      ),
+    ];
     var scaffold = Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -125,8 +149,23 @@ class _MyHomePageState extends State<MyHomePage> {
           // action in the IDE, or press "p" in the console), to see the
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             const Text('Pixel Art sobre una grilla personalizable'),
+
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/Pixel-Art-Hot-Pepper-2-1.webp',
+                    width: 400,
+                  ),
+                  Image.asset('assets/Pixel-Art-Pizza-2.webp', width: 400),
+                  Image.asset('assets/Pixel-Art-Watermelon-3.webp', width: 400),
+                ],
+              ),
+            ),
+
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
@@ -134,38 +173,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      
+
       floatingActionButton: FloatingActionButton(
-       onPressed: null,
-       backgroundColor: _color,
-       tooltip: 'Increment',
-       child: const Icon(Icons.home)
-       ),
-      persistentFooterButtons: [
-        FloatingActionButton(
-        onPressed: _incrementCounter,
-        backgroundColor: _newColor,
-        tooltip: 'Incrementar',
-        child: const Icon(Icons.add),
+        onPressed: null,
+        backgroundColor: _color,
+        tooltip: 'Increment',
+        child: const Icon(Icons.home),
       ),
-      FloatingActionButton(
-        onPressed: _decrementCounter,
-        tooltip: 'Decrementar',
-        child: const Icon(Icons.remove),
-      ),
-      FloatingActionButton(
-        onPressed: _restartCounter,
-        tooltip : 'Restaurar',
-        child: const Icon(Icons.refresh),
-        ),
-        FloatingActionButton(
-          onPressed: _setColor,
-          backgroundColor: _color,
-          tooltip: 'Custom Action',
-          child: const Icon(Icons.star)
-          )
-      ],
-        // This trailing comma makes auto-formatting nicer for build methods.
+      persistentFooterButtons: persistentFooterButtons,
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
     return scaffold;
   }
