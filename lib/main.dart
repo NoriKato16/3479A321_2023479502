@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'pages/home_page.dart'; 
 import 'pages/list_art.dart';
+import 'pages/pixel_art_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,12 +22,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 35, 190, 53),
         ),
-        textTheme: GoogleFonts.arizoniaTextTheme(),
+        textTheme: GoogleFonts.robotoTextTheme(),
       ),
       //home: const MyHomePage(title: '2023479502'),
       //home: ListArtScreen() ,
       //home: ListCreationScreen(),
-      home: AboutScreen(),
+      //home: AboutScreen(),
+       home: PixelArtScreen(title: 'pixelArtScreen'),
     );
   }
 }
