@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
+import '/providers/ConfigurationData.dart';
 
 class PixelArtScreen extends StatefulWidget {
   const PixelArtScreen({super.key, required this.title});
@@ -14,12 +16,12 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   int _counter = 0;
   Color _color = Colors.cyanAccent;
   final logger = Logger();
-
-
+  int _sizeGrid = 0;
 
   @override
   void initState() {
     super.initState();
+    _sizeGrid = context.read<ConfigurationData>().size;
     logger.d("se llama a inistate");
   }
 
@@ -59,7 +61,6 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     logger.d("se llama a reassemble");
   }
 
-
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -69,6 +70,8 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   @override
   Widget build(BuildContext context) {
     logger.d("build de dibujar el widget");
+    int providerSize = context.watch<ConfigurationData>().size;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -81,19 +84,45 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
             children: [
               const Text('Pixel Art sobre una grilla personalizable'),
               const SizedBox(height: 20),
+
+              // Muestra el valor local del contador
               Text(
-                '$_counter',
+                'Contador local: $_counter',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
+
               const SizedBox(height: 20),
+
+              // Muestra el valor compartido del Provider
+              Text(
+                'Tamaño (Provider): $providerSize',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () {
+                  context.read<ConfigurationData>().setSize(providerSize + 1);
+                },
+                child: const Text("Incrementar Provider"),
+              ),
+
+              const SizedBox(height: 10),
+
               ElevatedButton(
                 onPressed: _incrementCounter,
-                child: const Text("Incrementar"),
+                child: const Text("Incrementar local"),
               ),
             ],
           ),
         ),
       ),
     );
-  }
+  }//widget build
+
+  
 }

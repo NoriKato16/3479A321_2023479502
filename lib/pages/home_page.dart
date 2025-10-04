@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'list_art.dart';
 import 'about.dart';
 import 'list_creation.dart';
+import 'pixel_art_screen.dart';
+import 'config_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +14,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 35, 190, 53),
         ),
-        textTheme: GoogleFonts.arizoniaTextTheme(), // Fuente global
+        textTheme: GoogleFonts.arizoniaTextTheme(),
       ),
       home: const MyHomePage(title: '2023479502'),
     );
@@ -43,12 +44,12 @@ class _MyHomePageState extends State<MyHomePage> {
   final Color _newColor = Colors.red;
 
   void _incrementCounter() => setState(() {
-    _counter++;
-  });
+        _counter++;
+      });
 
   void _decrementCounter() => setState(() {
-    _counter--;
-  });
+        _counter--;
+      });
 
   void _restartCounter() {
     setState(() {
@@ -95,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.star),
       ),
     ];
+
     var scaffold = Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -119,96 +121,128 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Card(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Pixel Art sobre una grilla personalizable'),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Pixel Art sobre una grilla personalizable'),
 
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
+                // Scroll horizontal para las imagenes
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      Image.asset('assets/Pixel-Art-Hot-Pepper-2-1.webp',
+                          width: 400),
+                      Image.asset('assets/Pixel-Art-Pizza-2.webp', width: 400),
+                      Image.asset('assets/Pixel-Art-Watermelon-3.webp',
+                          width: 400),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Botones principales 
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  alignment: WrapAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/Pixel-Art-Hot-Pepper-2-1.webp',
-                      width: 400,
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.info_outline),
+                      label: const Text('About'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => AboutScreen()),
+                        );
+                      },
                     ),
-                    Image.asset('assets/Pixel-Art-Pizza-2.webp', width: 400),
-                    Image.asset(
-                      'assets/Pixel-Art-Watermelon-3.webp',
-                      width: 400,
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.image),
+                      label: const Text('Lista de Pixel Art'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => ListArtScreen()),
+                        );
+                      },
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.image),
+                      label: const Text('Lista de Creaciones en Pixel Art'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => ListCreationScreen()),
+                        );
+                      },
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.grid_on),
+                      label: const Text('PixelArt Screen'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PixelArtScreen(
+                                title: 'Pantalla Pixel Art'),
+                          ),
+                        );
+                      },
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.settings),
+                      label: const Text('Configuración'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ConfigScreen()),
+                        );
+                      },
                     ),
                   ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.info_outline),
-                    label: const Text('About'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => AboutScreen()),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.image),
-                    label: const Text('Lista de Pixel Art'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ListArtScreen()),
-                      );
-                    },
-                  ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.image),
-                    label: const Text('Lista de Creaciones en Pixel Art'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ListCreationScreen()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              Row(
-                children: [
-                  FloatingActionButton(
-                    onPressed: null,
-                    backgroundColor: _color,
-                    tooltip: 'Crear',
-                    child: const Icon(Icons.create),
-                  ),
-                  FloatingActionButton(
-                    onPressed: null,
-                    backgroundColor: _color,
-                    tooltip: 'Compartir',
-                    child: const Icon(Icons.share),
-                  ),
-                ],
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                // Contador
+                Text(
+                  '$_counter',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+
+                const SizedBox(height: 20),
+
+                // Acciones inferiores
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FloatingActionButton(
+                      onPressed: null,
+                      backgroundColor: _color,
+                      tooltip: 'Crear',
+                      child: const Icon(Icons.create),
+                    ),
+                    const SizedBox(width: 12),
+                    FloatingActionButton(
+                      onPressed: null,
+                      backgroundColor: _color,
+                      tooltip: 'Compartir',
+                      child: const Icon(Icons.share),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: null,
-        backgroundColor: _color,
-        tooltip: 'Increment',
-        child: const Icon(Icons.home),
-      ),*/
       persistentFooterButtons: persistentFooterButtons,
-      // This trailing comma makes auto-formatting nicer for build methods.
     );
     return scaffold;
   }

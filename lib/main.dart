@@ -6,9 +6,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'pages/home_page.dart'; 
 import 'pages/list_art.dart';
 import 'pages/pixel_art_screen.dart';
+import 'providers/ConfigurationData.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+
+    ChangeNotifierProvider(
+      create: (_) => ConfigurationData(),
+      child: const MyApp(),
+    ),
+    
+    );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,11 +33,11 @@ class MyApp extends StatelessWidget {
         ),
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      //home: const MyHomePage(title: '2023479502'),
+       home: const MyHomePage(title: '2023479502'),
       //home: ListArtScreen() ,
       //home: ListCreationScreen(),
       //home: AboutScreen(),
-       home: PixelArtScreen(title: 'pixelArtScreen'),
+       //home: PixelArtScreen(title: 'pixelArtScreen'),
     );
   }
 }
