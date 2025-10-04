@@ -13,7 +13,7 @@ class ConfigScreen extends StatelessWidget {
     // Lista de valores permitidos
     final availableSizes = ["16", "18", "20", "24", "30"];
 
-    // Validamos que el valor inicial est dentro de la lista
+    // se valida que el valor inicial est dentro de la lista
     final initialSize = availableSizes.contains(currentSize.toString())
         ? currentSize.toString()
         : "16"; // si no hay coincidencia se deja un valor por defecto
@@ -33,7 +33,7 @@ class ConfigScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Dropdown para seleccionar tamaños
+            // Dropdown para seleccionar los tamaños
             DropdownButtonFormField<String>(
               initialValue: initialSize,
               items: availableSizes.map((String value) {
