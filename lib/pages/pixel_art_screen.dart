@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import '/providers/ConfigurationData.dart';
 
+
 class PixelArtScreen extends StatefulWidget {
   const PixelArtScreen({super.key, required this.title});
 
@@ -17,6 +18,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   Color _color = Colors.cyanAccent;
   final logger = Logger();
   int _sizeGrid = 0;
+
 
   @override
   void initState() {
@@ -61,6 +63,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     logger.d("se llama a reassemble");
   }
 
+
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -84,45 +87,23 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
             children: [
               const Text('Pixel Art sobre una grilla personalizable'),
               const SizedBox(height: 20),
-
-              // Muestra el valor local del contador
               Text(
-                'Contador local: $_counter',
+                '$_counter',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-
               const SizedBox(height: 20),
-
-              // Muestra el valor compartido del Provider
-              Text(
-                'Tamaño (Provider): $providerSize',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
               ElevatedButton(
-                onPressed: () {
+                onPressed:()
+                {
                   context.read<ConfigurationData>().setSize(providerSize + 1);
-                },
-                child: const Text("Incrementar Provider"),
+                }, 
+                child: const Text("Incrementar"),
               ),
-
-              const SizedBox(height: 10),
-
-              ElevatedButton(
-                onPressed: _incrementCounter,
-                child: const Text("Incrementar local"),
-              ),
+              
             ],
           ),
         ),
       ),
     );
-  }//widget build
-
-  
+  }
 }
