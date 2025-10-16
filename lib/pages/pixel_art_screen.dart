@@ -5,105 +5,140 @@ import '/providers/ConfigurationData.dart';
 
 
 class PixelArtScreen extends StatefulWidget {
-  const PixelArtScreen({super.key, required this.title});
-
-  final String title;
+  const PixelArtScreen({super.key});
 
   @override
   State<PixelArtScreen> createState() => _PixelArtScreenState();
 }
 
 class _PixelArtScreenState extends State<PixelArtScreen> {
-  int _counter = 0;
-  Color _color = Colors.cyanAccent;
-  final logger = Logger();
-  int _sizeGrid = 0;
-
+  final Logger logger = Logger();
+  int _sizeGrid = 16;
+  Color _selectedColor = Colors.black;
+  late List<Color> _cellColors;
 
   @override
   void initState() {
     super.initState();
     _sizeGrid = context.read<ConfigurationData>().size;
-    logger.d("se llama a inistate");
+    _cellColors = List<Color>.filled(_sizeGrid * _sizeGrid, Colors.transparent);
+    logger.d("PixelArtScreen initialized.");
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    logger.d("se llama a didChangeDependencies");
-  }
-
-  @override
-  void didUpdateWidget(covariant PixelArtScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    logger.d("se llama a didupdate");
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    logger.d("se llama a setState");
-  }
-
-  @override
-  void deactivate() {
-    super.deactivate();
-    logger.d("se llama a deactivate");
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    logger.d("se llama a dispose");
-  }
-
-  @override
-  void reassemble() {
-    super.reassemble();
-    logger.d("se llama a reassemble");
-  }
-
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    _sizeGrid = context.watch<ConfigurationData>().size;
   }
 
   @override
   Widget build(BuildContext context) {
-    logger.d("build de dibujar el widget");
-    int providerSize = context.watch<ConfigurationData>().size;
+    final config = context.watch<ConfigurationData>();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Card(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        title: const Text('Creation Process'),
+        actions: [
+          Row(
             children: [
-              const Text('Pixel Art sobre una grilla personalizable'),
-              const SizedBox(height: 20),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
+              const Text('Números'),
+              Switch(
+                value: config.showNumbers,
+                onChanged: (value) {
+                  config.setShowNumbers(value);
+                  logger.d("Mostrar números: $value");
+                },
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed:()
-                {
-                  context.read<ConfigurationData>().setSize(providerSize + 1);
-                }, 
-                child: const Text("Incrementar"),
-              ),
-              
             ],
           ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Text('${config.size} x ${config.size}'),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _sizeGrid,
+                ),
+                itemCount: _sizeGrid * _sizeGrid,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => _cellColors[index] = _selectedColor);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(1),
+                      color: _cellColors[index],
+                      child: config.showNumbers
+                          ? Center(
+                              child: Text(
+                                '$index',
+                                style: TextStyle(
+                                  color: _cellColors[index] == Colors.black
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Paleta de colores
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              color: Colors.grey[200],
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: _buildColorPalette(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildColorPalette() {
+    final colors = [
+      Colors.black,
+      Colors.white,
+      Colors.red,
+      Colors.orange,
+      Colors.yellow,
+      Colors.green,
+      Colors.blue,
+      Colors.indigo,
+      Colors.purple,
+      Colors.brown,
+      Colors.grey,
+      Colors.pink,
+    ];
+    return colors.map((color) {
+      final selected = color == _selectedColor;
+      return GestureDetector(
+        onTap: () => setState(() => _selectedColor = color),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.all(selected ? 12 : 8),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border:
+                selected ? Border.all(color: Colors.black, width: 2) : null,
+          ),
+          width: selected ? 36 : 28,
+          height: selected ? 36 : 28,
+        ),
+      );
+    }).toList();
   }
 }

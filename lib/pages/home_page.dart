@@ -188,8 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const PixelArtScreen(
-                                title: 'Pantalla Pixel Art'),
+                            builder: (_) => const PixelArtScreen( ),
                           ),
                         );
                       },
