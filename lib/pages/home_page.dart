@@ -6,8 +6,12 @@ import 'about.dart';
 import 'list_creation.dart';
 import 'pixel_art_screen.dart';
 import 'config_screen.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -42,14 +46,16 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   Color _color = Colors.cyanAccent;
   final Color _newColor = Colors.red;
+  //para la iamgen que se crea
+  File? _lastImageFile;
 
   void _incrementCounter() => setState(() {
-        _counter++;
-      });
+    _counter++;
+  });
 
   void _decrementCounter() => setState(() {
-        _counter--;
-      });
+    _counter--;
+  });
 
   void _restartCounter() {
     setState(() {
@@ -65,6 +71,42 @@ class _MyHomePageState extends State<MyHomePage> {
         _color = Colors.red;
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLastCreatedImage(); //cargar al iniciar
+  }
+
+  // carga la ultima iamgen
+  Future<void> _loadLastCreatedImage() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final dir = Directory(directory.path);
+
+      final files = await dir
+          .list()
+          .where((item) => item.path.endsWith('.png'))
+          .map((item) => File(item.path))
+          .toList();
+
+      if (files.isNotEmpty) {
+        files.sort((a, b) => b.path.compareTo(a.path)); // ultimas primero
+        setState(() => _lastImageFile = files.first);
+      } else {
+        setState(() => _lastImageFile = null);
+      }
+    } catch (e) {
+      debugPrint('Error cargando imagen: $e');
+    }
+  }
+
+  //Para actualizar
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadLastCreatedImage();
   }
 
   @override
@@ -127,24 +169,53 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text('Pixel Art sobre una grilla personalizable'),
+                //mostrar la creacion que se hizo
+                const SizedBox(height: 12),
+                if (_lastImageFile != null) ...[
+                  const Text(
+                    'Última creación guardada:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Image.file(
+                    _lastImageFile!,
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _lastImageFile!.path.split('/').last,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const Divider(height: 24),
+                ] else
+                  const Text(
+                    'Aún no hay creaciones guardadas.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
 
                 // Scroll horizontal para las imagenes
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      Image.asset('assets/Pixel-Art-Hot-Pepper-2-1.webp',
-                          width: 400),
+                      Image.asset(
+                        'assets/Pixel-Art-Hot-Pepper-2-1.webp',
+                        width: 400,
+                      ),
                       Image.asset('assets/Pixel-Art-Pizza-2.webp', width: 400),
-                      Image.asset('assets/Pixel-Art-Watermelon-3.webp',
-                          width: 400),
+                      Image.asset(
+                        'assets/Pixel-Art-Watermelon-3.webp',
+                        width: 400,
+                      ),
                     ],
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Botones principales 
+                // Botones principales
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
@@ -177,8 +248,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => ListCreationScreen()),
-                        );
+                            builder: (_) => ListCreationScreen(),
+                          ),
+                        ).then((_) {
+                          _loadLastCreatedImage(); //para recargar la imagen
+                        });
                       },
                     ),
                     ElevatedButton.icon(
@@ -188,9 +262,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const PixelArtScreen( ),
+                            builder: (_) => const PixelArtScreen(),
                           ),
-                        );
+                        ).then((_) {
+                          _loadLastCreatedImage();
+                        });
                       },
                     ),
                     ElevatedButton.icon(
@@ -200,7 +276,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const ConfigScreen()),
+                            builder: (_) => const ConfigScreen(),
+                          ),
                         );
                       },
                     ),
@@ -221,19 +298,43 @@ class _MyHomePageState extends State<MyHomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Botón Crear (puedes implementar luego su lógica)
                     FloatingActionButton(
-                      onPressed: null,
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Función "Crear" en desarrollo'),
+                          ),
+                        );
+                      },
                       backgroundColor: _color,
                       tooltip: 'Crear',
                       child: const Icon(Icons.create),
                     ),
+
                     const SizedBox(width: 12),
-                    FloatingActionButton(
-                      onPressed: null,
+
+                    // código generado por el prompt de la IA
+                    /*FloatingActionButton(
+                      onPressed: () async {
+                        if (_lastImageFile != null &&
+                            await _lastImageFile!.exists()) {
+                          await SharePlus.instance.share(
+                            [XFile(_lastImageFile!.path)],
+                            '¡Mira mi creación en Pixel Art!',
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('No hay imagen para compartir'),
+                            ),
+                          );
+                        }
+                      },
                       backgroundColor: _color,
                       tooltip: 'Compartir',
                       child: const Icon(Icons.share),
-                    ),
+                    ),*/
                   ],
                 ),
               ],

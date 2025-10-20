@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '/../services/SharedPreferencesService.dart';
+import 'package:flutter/foundation.dart';
 
 class ConfigurationData extends ChangeNotifier {
   final SharedPreferencesService _prefs = SharedPreferencesService();
@@ -10,6 +11,7 @@ class ConfigurationData extends ChangeNotifier {
   bool _showNumbers = true;
   bool get showNumbers => _showNumbers;
 
+  final List<String> creations = [];
   ConfigurationData() {
     _loadPreferences();
   }
@@ -33,4 +35,10 @@ class ConfigurationData extends ChangeNotifier {
     notifyListeners();
     await _prefs.setShowNumbers(value);
   }
+
+  void addCreation(String path) {
+    creations.add(path);
+    notifyListeners();
+  }
+
 }

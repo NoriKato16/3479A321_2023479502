@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import '/providers/ConfigurationData.dart';
-
+import 'dart:ui' as ui;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class PixelArtScreen extends StatefulWidget {
   const PixelArtScreen({super.key});
@@ -103,6 +105,12 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
           ],
         ),
       ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: _savePixelArt,
+        tooltip: 'Guardar imagen',
+        child: const Icon(Icons.save),
+      ),
     );
   }
 
@@ -132,13 +140,42 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border:
-                selected ? Border.all(color: Colors.black, width: 2) : null,
+            border: selected ? Border.all(color: Colors.black, width: 2) : null,
           ),
           width: selected ? 36 : 28,
           height: selected ? 36 : 28,
         ),
       );
     }).toList();
+  }
+
+  Future<void> _savePixelArt() async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(
+      recorder,
+      Rect.fromLTWH(0, 0, _sizeGrid * 20.0, _sizeGrid * 20.0),
+    );
+    for (int row = 0; row < _sizeGrid; row++) {
+      for (int col = 0; col < _sizeGrid; col++) {
+        final color = _cellColors[row * _sizeGrid + col];
+        final paint = Paint()..color = color;
+        final rect = Rect.fromLTWH(col * 20.0, row * 20.0, 20.0, 20.0);
+        canvas.drawRect(rect, paint);
+      }
+    }
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(_sizeGrid * 20, _sizeGrid * 20);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final imageBytes = byteData!.buffer.asUint8List();
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath =
+        '${directory.path}/pixel_art_${DateTime.now().millisecondsSinceEpoch}.png';
+    final file = File(filePath);
+    await file.writeAsBytes(imageBytes);
+    logger.d("Pixel art saved to: $filePath");
+    context.read<ConfigurationData>().addCreation(filePath);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Pixel art saved to: $filePath')));
   }
 }
