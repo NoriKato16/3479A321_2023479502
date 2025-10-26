@@ -1,9 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _PrefsKeys {
-  static const gridSize = 'gridSize';          // int (obligatoria por enunciado)
-  static const showNumbers = 'showNumbers';    // bool (segunda preferencia mínima)
-  static const isResetEnabled = 'isResetEnabled'; // bool (ejemplo del enunciado)
+  static const gridSize = 'gridSize'; // int (obligatoria por enunciado)
+  static const showNumbers = 'showNumbers'; // bool (segunda preferencia mínima)
+  static const isResetEnabled =
+      'isResetEnabled'; // bool (ejemplo del enunciado)
 }
 
 class SharedPreferencesService {
@@ -38,6 +39,18 @@ class SharedPreferencesService {
   Future<void> setIsResetEnabled(bool value) async {
     final p = await _prefs;
     await p.setBool(_PrefsKeys.isResetEnabled, value);
+  }
+
+  // Guardar opacidad
+  Future<void> setBackgroundOpacity(double value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('backgroundOpacity', value);
+  }
+
+  // Obtener opacidad
+  Future<double> getBackgroundOpacity({double fallback = 0.5}) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble('backgroundOpacity') ?? fallback;
   }
 
   Future<PreferencesSnapshot> loadAll({

@@ -5,6 +5,7 @@ import '/providers/ConfigurationData.dart';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class PixelArtScreen extends StatefulWidget {
   const PixelArtScreen({super.key});
@@ -18,6 +19,8 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   int _sizeGrid = 16;
   Color _selectedColor = Colors.black;
   late List<Color> _cellColors;
+
+  File? _backgroundImage;
 
   @override
   void initState() {
@@ -36,6 +39,7 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
   @override
   Widget build(BuildContext context) {
     final config = context.watch<ConfigurationData>();
+    final hasImage = _backgroundImage != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,38 +62,96 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Text('${config.size} x ${config.size}'),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: _sizeGrid,
-                ),
-                itemCount: _sizeGrid * _sizeGrid,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() => _cellColors[index] = _selectedColor);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.all(1),
-                      color: _cellColors[index],
-                      child: config.showNumbers
-                          ? Center(
-                              child: Text(
-                                '$index',
-                                style: TextStyle(
-                                  color: _cellColors[index] == Colors.black
-                                      ? Colors.white
-                                      : Colors.black,
-                                ),
-                              ),
-                            )
-                          : null,
+            // Sección de controles superior
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Text('${config.size} x ${config.size}'),
+                  const SizedBox(height: 8),
+                  
+                  // Botón tomar foto
+                  ElevatedButton.icon(
+                    onPressed: _takePicture,
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Tomar foto'),
+                  ),
+                  
+                  // Mostrar controles si hay imagen
+                  if (hasImage) ...[
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: _deleteBackgroundImage,
+                      icon: const Icon(Icons.delete),
+                      label: const Text('Eliminar fondo'),
                     ),
-                  );
-                },
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Ajustar Opacidad',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    Slider(
+                      value: config.backgroundOpacity,
+                      min: 0.1,
+                      max: 1.0,
+                      divisions: 10,
+                      label: '${(config.backgroundOpacity * 100).toInt()}%',
+                      onChanged: (value) {
+                        config.setBackgroundOpacity(value);
+                      },
+                    ),
+                    Text(
+                      'Opacidad: ${(config.backgroundOpacity * 100).toInt()}%',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ],
               ),
             ),
+            
+            // Grid de pixel art
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(color: Colors.grey[100]),
+                  
+                  // Imagen de fondo
+                  if (hasImage)
+                    Opacity(
+                      opacity: config.backgroundOpacity,
+                      child: Image.file(
+                        _backgroundImage!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  
+                  // Grid
+                  GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _sizeGrid,
+                    ),
+                    itemCount: _sizeGrid * _sizeGrid,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() => _cellColors[index] = _selectedColor);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.all(1),
+                          color: _cellColors[index],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            
             // Paleta de colores
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -105,7 +167,6 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
           ],
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: _savePixelArt,
         tooltip: 'Guardar imagen',
@@ -174,8 +235,45 @@ class _PixelArtScreenState extends State<PixelArtScreen> {
     await file.writeAsBytes(imageBytes);
     logger.d("Pixel art saved to: $filePath");
     context.read<ConfigurationData>().addCreation(filePath);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Pixel art saved to: $filePath')));
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pixel art guardado: $filePath')),
+      );
+    }
+  }
+
+  Future<void> _takePicture() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/background_image.png';
+      final newImage = File(pickedFile.path);
+
+      if (_backgroundImage != null && await _backgroundImage!.exists()) {
+        await _backgroundImage!.delete();
+      }
+
+      await newImage.copy(filePath);
+
+      setState(() {
+        _backgroundImage = File(filePath);
+      });
+      
+      logger.d("Imagen guardada. _backgroundImage != null: ${_backgroundImage != null}");
+    }
+  }
+
+  void _deleteBackgroundImage() {
+    if (_backgroundImage != null && _backgroundImage!.existsSync()) {
+      _backgroundImage!.deleteSync();
+    }
+    setState(() {
+      _backgroundImage = null;
+    });
+    
+    logger.d("Imagen eliminada. _backgroundImage != null: ${_backgroundImage != null}");
   }
 }
